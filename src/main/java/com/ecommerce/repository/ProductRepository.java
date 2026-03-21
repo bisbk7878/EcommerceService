@@ -38,4 +38,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // Get all distinct categories
     @Query("SELECT DISTINCT p.category FROM Product p WHERE p.active = true")
     List<String> findAllCategories();
+
+    // Get featured products only (for homepage carousel)
+    List<Product> findByFeaturedTrueAndActiveTrue();
+
+    // Get trending products ordered by rating (highest rated first)
+    @Query("SELECT p FROM Product p WHERE p.active = true ORDER BY p.rating DESC, p.reviewCount DESC")
+    List<Product> findTrendingProducts();
 }

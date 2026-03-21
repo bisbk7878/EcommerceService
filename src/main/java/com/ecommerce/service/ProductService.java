@@ -50,6 +50,18 @@ public class ProductService {
         return productRepository.findAllCategories();
     }
 
+    /** Get featured products for homepage */
+    public List<Product> getFeaturedProducts() {
+        log.info("Fetching featured products");
+        return productRepository.findByFeaturedTrueAndActiveTrue();
+    }
+
+    /** Get trending products (highest rated) */
+    public List<Product> getTrendingProducts() {
+        log.info("Fetching trending products");
+        return productRepository.findTrendingProducts();
+    }
+
     /** CREATE product — saves to DB */
     @Transactional
     public Product createProduct(Product product) {

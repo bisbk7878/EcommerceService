@@ -59,6 +59,16 @@ public class ProductController {
         return ResponseEntity.ok(productService.getAllCategories());
     }
 
+    @GetMapping("/featured")
+    public ResponseEntity<List<Product>> getFeaturedProducts() {
+        return ResponseEntity.ok(productService.getFeaturedProducts());
+    }
+
+    @GetMapping("/trending")
+    public ResponseEntity<List<Product>> getTrendingProducts() {
+        return ResponseEntity.ok(productService.getTrendingProducts());
+    }
+
     @PostMapping
     public ResponseEntity<Product> createProduct(@Valid @RequestBody Product product) {
         Product created = productService.createProduct(product);

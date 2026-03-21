@@ -7,19 +7,18 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * PRODUCT Entity — maps to the PRODUCT table in H2 database.
- * Every field here becomes a column in the DB.
+ * PRODUCT Entity — Enhanced with ratings and featured flag
  */
 @Entity
 @Table(name = "products")
-@Data                   // Lombok: generates getters, setters, toString
-@NoArgsConstructor      // Lombok: generates no-arg constructor (required by JPA)
-@AllArgsConstructor     // Lombok: generates all-args constructor
-@Builder                // Lombok: enables builder pattern
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment PK
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank(message = "Product name is required")
@@ -43,14 +42,38 @@ public class Product {
     @Column(nullable = false)
     private String category;
 
+    @Builder.Default
     @Column(nullable = false)
     private Boolean active = true;
 
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist // Called automatically before inserting into DB
+    private LocalDateTime updatedAt;
+
+    // NEW FIELDS FOR MODERN UI
+    @Builder.Default
+    @DecimalMin(value = "0", message = "Rating must be 0 or higher")
+    @DecimalMax(value = "5", message = "Rating must be 5 or lower")
+    private Double rating = 4.5;
+
+    @Builder.Default
+    @Min(value = 0)
+    @Column(nullable = false)
+    private Integer reviewCount = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Boolean featured = false;
+
+    @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }
