@@ -1,0 +1,39 @@
+# --- Build Artifacts ---
+target/
+build/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+
+# --- IDE Specifics ---
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.settings/
+.project
+.classpath
+.metadata/
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# Visual Studio Code
+.vscode/
+
+# --- Environment & Sensitive Data ---
+.env
+.env.local
+*.log
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
