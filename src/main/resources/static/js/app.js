@@ -30,6 +30,40 @@ export const App = () => {
 
   const [orders, setOrders] = React.useState([]);
   const [ordersLoading, setOrdersLoading] = React.useState(false);
+  const [wishlistItems, setWishlistItems] = React.useState([]);
+
+  // Load wishlist on mount
+  React.useEffect(() => {
+    const loadWishlist = async () => {
+      try {
+        console.log('Loading wishlist...');
+        await wishlist.syncFromDB().catch(e => console.error('Sync error:', e));
+        const localWishlist = localStorage.getItem('shopease_wishlist');
+        const items = localWishlist ? JSON.parse(localWishlist) : [];
+        console.log('Wishlist items:', items);
+        setWishlistItems(items);
+      } catch (err) {
+        console.error('Error loading wishlist:', err);
+        setWishlistItems([]);
+      }
+    };
+    
+    loadWishlist();
+    
+    // Listen for wishlist updates
+    const handleWishlistUpdate = () => {
+      try {
+        const localWishlist = localStorage.getItem('shopease_wishlist');
+        const items = localWishlist ? JSON.parse(localWishlist) : [];
+        setWishlistItems(items);
+      } catch (err) {
+        console.error('Error updating wishlist:', err);
+      }
+    };
+    
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    return () => window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+  }, []);
 
   // Load orders on mount
   React.useEffect(() => {
@@ -211,18 +245,20 @@ export const App = () => {
 
       // Wishlist Page
       currentPage === 'wishlist' && React.createElement('div', null,
-        React.createElement('h1', {
-          style: { color: '#c9a84c', marginBottom: '30px' }
-        }, '❤️ My Wishlist'),
+        React.createElement('h1', { style: { color: '#c9a84c', marginBottom: '30px' } }, '❤️ My Wishlist'),
         (() => {
-          const wishlistItems = wishlist.getAll();
-          const wishlistProducts = products.filter(p => wishlistItems.includes(p.id));
-          return React.createElement(ProductGrid, {
-            products: wishlistProducts,
-            loading: productsLoading,
-            categories,
-            onAddToCart: handleAddToCart
-          });
+          const ids = Array.isArray(wishlistItems) ? wishlistItems : [];
+          const items = products.filter(p => ids.includes(p.id));
+          
+          return ids.length === 0 ? React.createElement('div', {
+            style: { textAlign: 'center', padding: '60px 20px', background: 'linear-gradient(135deg, rgba(201, 168, 76, 0.05) 0%, transparent 100%)', borderRadius: '12px', border: '1px solid #3d3d3d' }
+          },
+            React.createElement('div', { style: { fontSize: '4em', marginBottom: '20px' } }, '💭'),
+            React.createElement('h2', { style: { color: '#c9a84c', marginBottom: '15px' } }, 'No Favorites Yet'),
+            React.createElement('p', { style: { color: '#b0b0b0', marginBottom: '30px' } }, 'Click ❤️ to add items'),
+            React.createElement('button', { onClick: () => setCurrentPage('home'), style: { background: 'linear-gradient(135deg, #c9a84c, #e0c896)', border: 'none', color: '#1a1a1a', padding: '10px 25px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', marginRight: '10px' } }, '← Home'),
+            React.createElement('button', { onClick: () => setCurrentPage('products'), style: { border: '2px solid #c9a84c', background: 'transparent', color: '#c9a84c', padding: '8px 25px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' } }, 'Browse →')
+          ) : React.createElement(ProductGrid, { products: items, loading: productsLoading, categories, onAddToCart: handleAddToCart });
         })()
       )
     ),
